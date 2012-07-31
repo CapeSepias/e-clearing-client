@@ -1,4 +1,4 @@
-package com.thenewmotion.chargenetwork.eclearing.client
+package com.thenewmotion.chargenetwork.eclearing
 
 object RoamingAuthorisationMock {
   lazy val CSV = {
