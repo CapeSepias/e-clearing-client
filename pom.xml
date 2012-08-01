@@ -17,6 +17,10 @@
     <artifactId>e-clearing-client</artifactId>
     <version>2.5-SNAPSHOT</version>
 
+    <name>e-clearing Client</name>
+    <url>http://github.com/thenewmotion/e-clearing-client</url>
+    <description>Open Clearing House Protocol v0.2 client</description>
+
     <repositories>
         <repository>
             <id>thenewmotion-nexus</id>

@@ -4,7 +4,7 @@ Client for [www.e-clearing.net](http://www.e-clearing.net) written on Scala
 
 ## Includes
 
-* Wsdl v0.2 generated client and bean classes with help of [scalaxb](http://scalaxb.org)
+* Open Clearing House Protocol v0.2 generated client and bean classes with help of [scalaxb](http://scalaxb.org)
 
 * Service-like trait to manipulate with Cards
 ```scala
