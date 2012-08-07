@@ -30,8 +30,8 @@
 
     <scm>
         <url>https://github.com/thenewmotion/e-clearing-client</url>
-        <connection>scm:git:ssh://git@github.com:thenewmotion/e-clearing-client.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:thenewmotion/e-clearing-client.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com/thenewmotion/e-clearing-client.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/thenewmotion/e-clearing-client.git</developerConnection>
     </scm>
 
     <dependencies>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>com.thenewmotion</groupId>
             <artifactId>common_${scala.version}</artifactId>
-            <version>1.17-SNAPSHOT</version>
+            <version>1.17</version>
         </dependency>
 
         <dependency>
