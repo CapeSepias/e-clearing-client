@@ -1,6 +1,6 @@
 # E-Clearing client [![Build Status](https://secure.travis-ci.org/thenewmotion/e-clearing-client.png)](http://travis-ci.org/thenewmotion/e-clearing-client)
 
-Client for [www.e-clearing.net](http://www.e-clearing.net) written on Scala
+Client for [www.e-clearing.net](http://www.e-clearing.net) written in Scala
 
 ## Includes
 
