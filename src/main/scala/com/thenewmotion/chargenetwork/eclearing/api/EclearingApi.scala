@@ -1,6 +1,7 @@
 package com.thenewmotion.chargenetwork.eclearing.api
 
 import com.thenewmotion.time.Imports._
+import scalax.StringOption
 
 /**
  * @author Yaroslav Klymko

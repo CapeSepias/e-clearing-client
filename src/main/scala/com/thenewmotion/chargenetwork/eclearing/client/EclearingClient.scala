@@ -13,7 +13,7 @@ class EclearingClient(user: String, password: String) {
   import EclearingClient._
 
   val log = LoggerFactory.getLogger(getClass)
-  private lazy val service = (new EchsSOAPBindings with Soap11Clients with FixedDispatchHttpClients).service
+  private lazy val service = (new EchsSOAPBindings with Soap11Clients with DispatchHttpClients).service
   lazy val authToken = new AuthToken()
 
   def addCdrs(cdrs: Seq[CDRInfo]) {

@@ -1,6 +1,7 @@
 package com.thenewmotion.chargenetwork.eclearing
 
 import api._
+import scalax.StringOption
 
 /**
  * @author Yaroslav Klymko

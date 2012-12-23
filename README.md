@@ -30,7 +30,7 @@ Client for [www.e-clearing.net](http://www.e-clearing.net) written in Scala
 ```xml
     <dependency>
         <groupId>com.thenewmotion.chargenetwork</groupId>
-        <artifactId>e-clearing-client_2.9.2</artifactId>
+        <artifactId>e-clearing-client_2.10</artifactId>
         <version>2.7</version>
     </dependency>
 ```
