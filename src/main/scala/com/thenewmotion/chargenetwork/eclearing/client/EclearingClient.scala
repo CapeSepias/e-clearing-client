@@ -13,7 +13,7 @@ class EclearingClient(user: String, password: String) {
   import EclearingClient._
 
   val log = LoggerFactory.getLogger(getClass)
-  private lazy val service = (new EchsSOAPBindings with Soap11Clients with FixedDispatchHttpClients).service
+  private lazy val service = (new EchsSOAPBindings with Soap11Clients with DispatchHttpClients).service
   lazy val authToken = new AuthToken()
 
   def addCdrs(cdrs: Seq[CDRInfo]) {
@@ -57,11 +57,11 @@ class EclearingClient(user: String, password: String) {
         case AuthDenied if retry =>
           log.debug("Auth token %s denied, retrying".format(token))
           authToken.receiveNewToken()
-          _func(false)
+          _func(retry = false)
         case AuthDenied => sys.error("EclearingClient: Auth tooken %s is incorrect".format(token))
       }
     }
-    _func(true)
+    _func(retry = true)
   }
 
   type Response = {def result: Result}

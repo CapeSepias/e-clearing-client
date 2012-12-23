@@ -1,5 +1,7 @@
 package com.thenewmotion.chargenetwork.eclearing
 
+import scalax.StringOption
+
 object RoamingAuthorisationMock {
   lazy val CSV = {
     val is = getClass.getResourceAsStream("roaming-authorisation-list.csv")
