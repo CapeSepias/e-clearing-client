@@ -49,6 +49,11 @@
             <artifactId>scalax_${scala.version}</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>scalalogging-slf4j_${scala.version}</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>

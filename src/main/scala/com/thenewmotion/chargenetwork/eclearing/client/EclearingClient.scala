@@ -2,47 +2,51 @@ package com.thenewmotion.chargenetwork.eclearing
 package client
 
 import scalaxb._
-import org.slf4j.LoggerFactory
 import scalaxb.Soap11Fault
+import com.typesafe.scalalogging.slf4j.Logging
 
 /**
  * @author Yaroslav Klymko
  */
-class EclearingClient(user: String, password: String) {
+class EclearingClient(user: String, password: String) extends Logging {
 
   import EclearingClient._
 
-  val log = LoggerFactory.getLogger(getClass)
   private lazy val service = (new EchsSOAPBindings with Soap11Clients with DispatchHttpClients).service
   lazy val authToken = new AuthToken()
 
   def addCdrs(cdrs: Seq[CDRInfo]) {
+    logger.debug("Adding cdrs: %s".format(cdrs.mkString("\n", "\n", "\n")))
     send(service.addCDRs(AddCDRsRequest(cdrs: _*), _))
   }
 
   def clearCdrs() {
+    logger.debug("Clearing cdrs")
     send(service.clearCDRs(ClearCDRsRequest(), _))
   }
 
   def cdrs(): Seq[CDRInfo] = {
+    logger.debug("Get cdrs")
     receive(service.getCDRs(GetCDRsRequest(), _)).cdrInfoArray
   }
 
   def setChargepointList(list: Seq[ChargepointInfo]) {
-    log.debug("Set charge point list: " + list.mkString(", "))
+    logger.debug("Set charge point list: " + list.mkString(", "))
     send(service.setChargepointList(SetChargepointListRequest(list: _*), _))
   }
 
   def chargepointList(): Seq[ChargepointInfo] = {
+    logger.debug("Get chargepoint list")
     receive(service.getChargepointList(GetChargepointListRequest(), _)).chargepointInfoArray
   }
 
   def setRoamingAuthorisationList(list: Seq[RoamingAuthorisationInfo]) {
-    log.debug("Set roaming authorisation list: " + list.mkString(", "))
+    logger.debug("Set roaming authorisation list: " + list.mkString(", "))
     send(service.setRoamingAuthorisationList(SetRoamingAuthorisationListRequest(list: _*), _))
   }
 
   def roamingAuthorisationList(): Seq[RoamingAuthorisationInfo] = {
+    logger.debug("Get roaming authorisation list")
     val roamingAuthorisation = service.getRoamingAuthorisationList(GetRoamingAuthorisationListRequest(), _: String)
     receive(roamingAuthorisation).roamingAuthorisationInfoArray
   }
@@ -55,10 +59,10 @@ class EclearingClient(user: String, password: String) {
       AuthResultType(code) match {
         case AuthAccepted => res
         case AuthDenied if retry =>
-          log.info("Auth token %s denied, retrying".format(token))
+          logger.debug("Auth token %s denied, retrying".format(token))
           authToken.receiveNewToken()
           loop(retry = false)
-        case AuthDenied => sys.error("EclearingClient: Auth tooken %s is incorrect".format(token))
+        case AuthDenied => throw new EclearingException("Auth token %s is incorrect".format(token))
       }
     }
     loop(retry = true)
@@ -82,8 +86,8 @@ class EclearingClient(user: String, password: String) {
   private def rightOrError[T](func: => Either[Soap11Fault[Any], T]): T = func match {
     case Right(right) => right
     case Left(left) =>
-      log.warn(left.toString)
-      sys.error("EclearingClient: " + left.original.toString)
+      logger.warn(left.toString)
+      throw new EclearingException(left.original.toString)
   }
 
   class AuthToken {
@@ -97,17 +101,15 @@ class EclearingClient(user: String, password: String) {
       }
       AuthResultType(res.resultCode) match {
         case AuthAccepted => res.authToken match {
-          case Some(t) =>
-            log.debug("Received new auth token: " + t)
-            t
-          case None => sys.error("EclearingClient: no token received")
+          case Some(t) => logger.debug("Received new auth token: " + t); t
+          case None => throw new EclearingException("No token received")
         }
-        case AuthDenied => sys.error("EclearingClient: login or password is incorrect")
+        case AuthDenied => throw new EclearingException("Login or password is incorrect")
       }
     }
 
     def receiveNewToken() {
-      log.debug("Receiving new auth token")
+      logger.debug("Receiving new auth token")
       _token = authenticate()
     }
   }
@@ -120,7 +122,7 @@ object EclearingClient {
     def apply(code: Int): AuthResultType = code match {
       case 0 => AuthAccepted
       case 1 => AuthDenied
-      case x => sys.error("EclearingClient: Illegal AuthResultType: " + x)
+      case x => throw new EclearingException("Illegal AuthResultType: " + x)
     }
   }
 
@@ -128,3 +130,5 @@ object EclearingClient {
   case object AuthAccepted extends AuthResultType
   case object AuthDenied extends AuthResultType
 }
+
+class EclearingException(msg: String) extends RuntimeException(msg)
