@@ -10,7 +10,7 @@
 
     <groupId>com.thenewmotion.chargenetwork</groupId>
     <artifactId>e-clearing-client_2.9.2</artifactId>
-    <version>2.7-SNAPSHOT</version>
+    <version>2.7</version>
 
     <name>e-clearing Client</name>
     <url>http://github.com/thenewmotion/e-clearing-client</url>
