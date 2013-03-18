@@ -6,12 +6,13 @@ import api._
  * @author Yaroslav Klymko
  */
 object Converters{
-  implicit def roamingAuthorisationInfo2Card(rai: RoamingAuthorisationInfo): Card = {
+  implicit def roamingAuthorisationInfoToCard(rai: RoamingAuthorisationInfo): Card = {
     import rai._
     Card(StringOption(evcoId).getOrElse(""),
       RoamingHubId(roamingHubId),
       TokenType(tokenType),
       tokenId.toUpperCase,
+      StringOption(serviceProvider),
       printedNumber,
       ExpiryDate(expiryDate),
       pin,
@@ -21,19 +22,20 @@ object Converters{
     )
   }
 
-  implicit def card2RoamingAuthorisationInfo(card: Card): RoamingAuthorisationInfo = {
+  implicit def cardToRoamingAuthorisationInfo(card: Card): RoamingAuthorisationInfo = {
     import card._
     RoamingAuthorisationInfo(
       evcoId,
       roamingHubId.id,
       tokenType.id,
       tokenId,
+      serviceProvider getOrElse "",
       printedNumber,
       ExpiryDate.unapply(expiryDate),
       pin,
       PinMandatory.unapply(pinMandatory),
       TokenActivated.unapply(tokenActivated),
-      hash.getOrElse("")
+      hash getOrElse ""
     )
   }
 }

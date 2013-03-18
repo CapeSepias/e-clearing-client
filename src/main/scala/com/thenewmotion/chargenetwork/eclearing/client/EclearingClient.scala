@@ -48,20 +48,20 @@ class EclearingClient(user: String, password: String) {
   }
 
   private def authorized[T](func: String => T)(result: T => Result): T = {
-    def _func(retry: Boolean): T = {
+    def loop(retry: Boolean): T = {
       val token = authToken()
       val res = func(token)
       val code = result(res).resultCode
       AuthResultType(code) match {
         case AuthAccepted => res
         case AuthDenied if retry =>
-          log.debug("Auth token %s denied, retrying".format(token))
+          log.info("Auth token %s denied, retrying".format(token))
           authToken.receiveNewToken()
-          _func(false)
+          loop(retry = false)
         case AuthDenied => sys.error("EclearingClient: Auth tooken %s is incorrect".format(token))
       }
     }
-    _func(true)
+    loop(retry = true)
   }
 
   type Response = {def result: Result}
@@ -124,10 +124,7 @@ object EclearingClient {
     }
   }
 
-  sealed abstract class AuthResultType
-
+  sealed trait AuthResultType
   case object AuthAccepted extends AuthResultType
-
   case object AuthDenied extends AuthResultType
-
 }
