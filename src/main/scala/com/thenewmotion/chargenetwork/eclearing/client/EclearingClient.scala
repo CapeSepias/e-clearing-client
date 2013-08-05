@@ -4,15 +4,21 @@ package client
 import scalaxb._
 import scalaxb.Soap11Fault
 import com.typesafe.scalalogging.slf4j.Logging
+import ssl.{SslCertificateData, SslEchsSOAPBindings}
 
 /**
  * @author Yaroslav Klymko
  */
-class EclearingClient(user: String, password: String) extends Logging {
+class EclearingClient(user: String, password: String,
+                      certificateData: Option[SslCertificateData] = None) extends Logging {
 
   import EclearingClient._
 
-  private lazy val service = (new EchsSOAPBindings with Soap11Clients with DispatchHttpClients).service
+  private[client] lazy val soapBindings = certificateData match {
+    case None           => new EchsSOAPBindings with Soap11Clients with DispatchHttpClients
+    case Some(certData) => new SslEchsSOAPBindings(certData)
+  }
+  private lazy val service = soapBindings.service
   lazy val authToken = new AuthToken()
 
   def addCdrs(cdrs: Seq[CDRInfo]) {
