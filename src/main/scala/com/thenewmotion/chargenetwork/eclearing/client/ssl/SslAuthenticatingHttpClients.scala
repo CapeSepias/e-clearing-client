@@ -1,7 +1,7 @@
 package com.thenewmotion.chargenetwork.eclearing
 package client.ssl
 
-import java.io.{BufferedInputStream, FileInputStream, ByteArrayInputStream}
+import java.io.{InputStream, FileInputStream}
 import dispatch.Http
 import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig}
 import javax.net.ssl.{TrustManagerFactory, KeyManagerFactory, SSLContext}
@@ -35,8 +35,8 @@ class SslAuthenticatingHttp(certData: SslCertificateData) extends Http {
   private def buildSslContext(certData: SslCertificateData): SSLContext = {
     import certData._
 
-    val clientCertStore = loadKeyStore(clientCertificateData, clientCertificatePassword)
-    val rootCertStore = loadKeyStore(rootCertificateData, rootCertificatePassword)
+    val clientCertStore = loadKeyStore(clientCertificateStream, clientCertificatePassword)
+    val rootCertStore = loadKeyStore(rootCertificateStream, rootCertificatePassword)
 
     val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
     keyManagerFactory.init(clientCertStore, clientCertificatePassword.toCharArray)
@@ -52,32 +52,31 @@ class SslAuthenticatingHttp(certData: SslCertificateData) extends Http {
     context
   }
 
-  private def loadKeyStore(keyStoreData: Array[Byte], password: String): KeyStore = {
+  private def loadKeyStore(keyStoreStream: () => InputStream, password: String): KeyStore = {
     val store = KeyStore.getInstance(KeyStore.getDefaultType)
-    store.load(new ByteArrayInputStream(keyStoreData), password.toCharArray)
+    val inputStream = keyStoreStream()
+    try {
+      store.load(keyStoreStream(), password.toCharArray)
+    } finally {
+      inputStream.close
+    }
     store
   }
 }
 
 case class SslCertificateData (
-  clientCertificateData: Array[Byte],
+  clientCertificateStream: () => InputStream,
   clientCertificatePassword: String,
-  rootCertificateData: Array[Byte],
+  rootCertificateStream: () => InputStream,
   rootCertificatePassword: String)
 
 object SslCertificateData {
   def apply(clientCertFilename: String, clientCertPassword: String,
             rootCertFilename: String, rootCertPassword: String): SslCertificateData = {
-    SslCertificateData(fileBytes(clientCertFilename), clientCertPassword,
-                       fileBytes(rootCertFilename), rootCertPassword)
+    SslCertificateData(lazyOpen(clientCertFilename), clientCertPassword,
+                       lazyOpen(rootCertFilename), rootCertPassword)
   }
 
-  private def fileBytes(filename: String) = {
-    val is = new BufferedInputStream(new FileInputStream(filename))
-    try {
-       Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
-    } finally {
-      is.close
-    }
-  }
+  private def lazyOpen(filename: String): () => InputStream =
+    () =>  new FileInputStream(filename)
 }
