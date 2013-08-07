@@ -1,14 +1,16 @@
 package com.thenewmotion.chargenetwork.eclearing
 package client.ssl
 
-import java.io.InputStream
+import java.io.{BufferedInputStream, FileInputStream, ByteArrayInputStream}
 import dispatch.Http
 import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig}
 import javax.net.ssl.{TrustManagerFactory, KeyManagerFactory, SSLContext}
 import java.security.KeyStore
 import scalaxb.HttpClients
 
-class SslAuthenticatingHttpClients(certData: SslCertificateData) extends HttpClients {
+trait SslAuthenticatingHttpClients extends HttpClients {
+  def certData: SslCertificateData
+
   private val http = new SslAuthenticatingHttp(certData)
 
   // trait below copy-pasted with small modifications from DispatchHttpClients which is among the generated sources
@@ -50,15 +52,32 @@ class SslAuthenticatingHttp(certData: SslCertificateData) extends Http {
     context
   }
 
-  private def loadKeyStore(is: InputStream, password: String): KeyStore = {
+  private def loadKeyStore(keyStoreData: Array[Byte], password: String): KeyStore = {
     val store = KeyStore.getInstance(KeyStore.getDefaultType)
-    store.load(is, password.toCharArray)
+    store.load(new ByteArrayInputStream(keyStoreData), password.toCharArray)
     store
   }
 }
 
 case class SslCertificateData (
-  clientCertificateData: InputStream,
+  clientCertificateData: Array[Byte],
   clientCertificatePassword: String,
-  rootCertificateData: InputStream,
+  rootCertificateData: Array[Byte],
   rootCertificatePassword: String)
+
+object SslCertificateData {
+  def apply(clientCertFilename: String, clientCertPassword: String,
+            rootCertFilename: String, rootCertPassword: String): SslCertificateData = {
+    SslCertificateData(fileBytes(clientCertFilename), clientCertPassword,
+                       fileBytes(rootCertFilename), rootCertPassword)
+  }
+
+  private def fileBytes(filename: String) = {
+    val is = new BufferedInputStream(new FileInputStream(filename))
+    try {
+       Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
+    } finally {
+      is.close
+    }
+  }
+}

@@ -32,11 +32,13 @@ class EclearingClientSpec extends SpecificationWithJUnit {
     }
 
     "use HTTPS if certificate data given" >> {
-      val rootCertIS = this.getClass.getResourceAsStream("test-rootcert.jks")
-      val clientCertIS = this.getClass.getResourceAsStream("test-clientcert.jks")
+      def resourceBytes(resourceName: String): Array[Byte] = {
+        val bs = this.getClass.getResourceAsStream(resourceName)
+        Stream.continually(bs.read).takeWhile(-1 !=).map(_.toByte).toArray
+      }
 
-      val client = new EclearingClient("", "", Some(SslCertificateData(clientCertIS, "dagdag",
-                                                                       rootCertIS, "hoihoi")))
+      val client = new EclearingClient("", "", Some(SslCertificateData(resourceBytes("/test-clientcert.jks"), "dagdag",
+                                                                       resourceBytes("/test-rootcert.jks"), "hoihoi")))
       client.soapBindings.baseAddress.toString must startWith("https://")
     }
   }

@@ -4,7 +4,7 @@ package client
 import scalaxb._
 import scalaxb.Soap11Fault
 import com.typesafe.scalalogging.slf4j.Logging
-import ssl.{SslCertificateData, SslEchsSOAPBindings}
+import com.thenewmotion.chargenetwork.eclearing.client.ssl.{HttpsEchsSOAPBindings, SslAuthenticatingHttpClients, SslCertificateData}
 
 /**
  * @author Yaroslav Klymko
@@ -16,7 +16,9 @@ class EclearingClient(user: String, password: String,
 
   private[client] lazy val soapBindings = certificateData match {
     case None           => new EchsSOAPBindings with Soap11Clients with DispatchHttpClients
-    case Some(certData) => new SslEchsSOAPBindings(certData)
+    case Some(data) => new HttpsEchsSOAPBindings with Soap11Clients with SslAuthenticatingHttpClients {
+      def certData = data
+    }
   }
   private lazy val service = soapBindings.service
   lazy val authToken = new AuthToken()
