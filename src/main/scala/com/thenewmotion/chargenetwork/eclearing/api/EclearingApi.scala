@@ -19,7 +19,7 @@ case class Card(evcoId: String,
                 tokenId: String,
                 printedNumber: String,
                 expiryDate: Option[DateTime],
-                pin: Int,
+                pin: String,
                 pinMandatory: Boolean,
                 tokenActivated: Boolean,
                 hash: Option[String])

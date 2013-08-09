@@ -191,7 +191,7 @@
 	                </s:annotation>
 	
 	            </s:element>
-	            <s:element minOccurs="1" maxOccurs="1" name="pin" type="s:int">
+	            <s:element minOccurs="1" maxOccurs="1" name="pin" type="s:string">
 	                <s:annotation>
 	                    <s:documentation>
 	                        numeric (max. 6)
