@@ -1,7 +1,9 @@
-package com.thenewmotion.chargenetwork.eclearing.client.example
+package com.thenewmotion.chargenetwork.eclearing
+package client.example
 
 import dispatch._
-import com.thenewmotion.chargenetwork.eclearing.client.ssl.{SslCertificateData, SslAuthenticatingHttp}
+import client.ssl.{SslCertificateData, SslAuthenticatingHttp}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object SslAuthenticatingHttpClientsSample extends App {
   if (args.size != 4) {
@@ -14,7 +16,7 @@ object SslAuthenticatingHttpClientsSample extends App {
   val http = new SslAuthenticatingHttp(SslCertificateData(args(0), args(1), args(2), args(3)))
 
   val req = url("https://www.evclearinghouse.eu/service/?wsdl")
-  val res: Promise[String] = http(req > as.String)
+  val res: Future[String] = http(req > as.String)
   val s = res()
   println(s)
 }

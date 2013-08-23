@@ -7,6 +7,9 @@ import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig}
 import javax.net.ssl.{TrustManagerFactory, KeyManagerFactory, SSLContext}
 import java.security.KeyStore
 import scalaxb.HttpClients
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait SslAuthenticatingHttpClients extends HttpClients {
   def certData: SslCertificateData
@@ -21,8 +24,8 @@ trait SslAuthenticatingHttpClients extends HttpClients {
 
     def request(in: String, address: java.net.URI, headers: Map[String, String]): String = {
       val req = url(address.toString) << in <:< headers
-      val s = http(req OK as.String)
-      s()
+      val future = http(req OK as.String)
+      Await.result(future, 10.seconds)
     }
   }
 }

@@ -17,7 +17,7 @@
     <description>Open Clearing House Protocol v0.2 client</description>
 
     <properties>
-        <scalaxb.version>1.0.1</scalaxb.version>
+        <scalaxb.version>1.1.1</scalaxb.version>
     </properties>
 
     <repositories>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>net.databinder.dispatch</groupId>
             <artifactId>dispatch-core_${scala.version}</artifactId>
-            <version>0.9.5</version>
+            <version>0.11.0</version>
         </dependency>
         <dependency>
             <groupId>com.thenewmotion</groupId>
@@ -70,7 +70,7 @@
             <plugin>
                 <groupId>org.scalaxb</groupId>
                 <artifactId>scalaxb-maven-plugin</artifactId>
-                <version>1.0.1</version>
+                <version>1.1.1</version>
                 <executions>
                     <execution>
                         <id>scalaxb</id>
