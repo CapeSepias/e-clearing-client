@@ -12,6 +12,7 @@ class EclearingClientSpec extends SpecificationWithJUnit {
   val client = new EclearingClient("", "")
 
   "EclearingClient" should {
+
     "receive token" >> {
       client.authToken() must not beEmpty
     }

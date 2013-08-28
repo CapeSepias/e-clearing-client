@@ -25,35 +25,21 @@ case class Card(evcoId: String,
                 hash: Option[String])
 
 object RoamingHubId {
-  val Known = Seq(BlueCorner, ELaad, LadenetzDe, Other)
+  val Known = Seq(BlueCorner, ELaad, LadenetzDe, BallastNedam, TheNewMotion, Other)
   def apply(id: Int): Value = Known.find(_.id == id) getOrElse Unknown(id)
   def withName(name: String): Value = Known.find(_.toString == name) getOrElse Other
 
-  sealed abstract class Value {
-    def id: Int
+  sealed abstract class Value(val id: Int, name: String) {
+    override val toString = name
   }
 
-  case object Other extends Value {
-    val id = 0
-     override val toString = "Other"
-  }
-
-  case object BlueCorner extends Value {
-    val id = 1
-     override val toString = "Blue Corner"
-  }
-
-  case object ELaad extends Value {
-    val id = 2
-     override val toString = "e-laad"
-  }
-
-  case object LadenetzDe extends Value {
-    val id = 3
-     override val toString = "ladenetz.de"
-  }
-
-  case class Unknown(id: Int) extends Value
+  case object Other extends Value(0, "Other")
+  case object BlueCorner extends Value(1, "Blue Corner")
+  case object ELaad extends Value(2, "e-laad")
+  case object LadenetzDe extends Value(3, "ladenetz.de")
+  case object BallastNedam extends Value(4, "Ballast Nedam")
+  case object TheNewMotion extends Value(5, "TheNewMotion")
+  case class Unknown(override val id: Int) extends Value(id, "Unknown")
 }
 
 object ExpiryDate {
