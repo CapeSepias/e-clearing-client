@@ -25,12 +25,12 @@ case class Card(evcoId: String,
                 hash: Option[String])
 
 object RoamingHubId {
-  val Known = Seq(BlueCorner, ELaad, LadenetzDe, BallastNedam, TheNewMotion, Other)
+  val Known: Seq[RoamingHubId.Value] = Seq(BlueCorner, ELaad, LadenetzDe, BallastNedam, TheNewMotion, Other)
   def apply(id: Int): Value = Known.find(_.id == id) getOrElse Unknown(id)
-  def withName(name: String): Value = Known.find(_.toString == name) getOrElse Other
+  def withName(name: String): Value = Known.find(_.name == name) getOrElse Other
 
-  sealed abstract class Value(val id: Int, name: String) {
-    override val toString = name
+  sealed abstract class Value(val id: Int, val name: String) {
+    override def toString = s"$id ($name)"
   }
 
   case object Other extends Value(0, "Other")
