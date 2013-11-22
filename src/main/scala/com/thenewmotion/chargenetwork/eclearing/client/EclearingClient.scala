@@ -112,7 +112,7 @@ class EclearingClient(user: String, password: String,
   private def rightOrError[T](func: => Either[Soap11Fault[Any], T]): T = func match {
     case Right(right) => right
     case Left(left) =>
-      logger.warn(left.toString)
+      logger.warn("SOAP error: {}, details: {}", left, left.detail)
       throw new EclearingException(left.original.toString)
   }
 
