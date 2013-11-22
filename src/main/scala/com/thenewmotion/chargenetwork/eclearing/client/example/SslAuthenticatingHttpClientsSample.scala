@@ -15,7 +15,7 @@ object SslAuthenticatingHttpClientsSample extends App {
 
   val http = new SslAuthenticatingHttp(SslCertificateData(args(0), args(1), args(2), args(3)))
 
-  val req = url("https://www.evclearinghouse.eu/service/?wsdl")
+  val req = url("https://q.ochp.e-clearing.net/ochp/service/index.php?wsdl")
   val res: Future[String] = http(req > as.String)
   val s = res()
   println(s)

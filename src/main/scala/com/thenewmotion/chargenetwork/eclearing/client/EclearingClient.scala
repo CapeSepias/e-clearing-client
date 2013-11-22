@@ -4,22 +4,40 @@ package client
 import scalaxb._
 import scalaxb.Soap11Fault
 import com.typesafe.scalalogging.slf4j.Logging
-import com.thenewmotion.chargenetwork.eclearing.client.ssl.{HttpsEchsSOAPBindings, SslAuthenticatingHttpClients, SslCertificateData}
+import ssl.{SslAuthenticatingHttpClients, SslCertificateData}
+import java.net.URI
 
 /**
- * @author Yaroslav Klymko
+ * @param user The username for authenticating to e-clearing
+ * @param password The password for authenticating to e-clearing
+ * @param certificateData The SSL client certificate and root certificate data for authenticating to e-clearing. Will
+ *                        only be used if the URI has https as the protocol. The URI has https, but if it is overridden
+ *                        with an http URI the certificate data will not be used. If None is passed, no client
+ *                        certificate is offered to the server.
+ * @param uri The URI of the e-clearing web service. Pass None to use the default from the WSDL file.
  */
 class EclearingClient(user: String, password: String,
-                      certificateData: Option[SslCertificateData] = None) extends Logging {
+                      certificateData: Option[SslCertificateData] = None,
+                      uri: Option[URI] = None) extends Logging {
 
   import EclearingClient._
 
-  private[client] lazy val soapBindings = certificateData match {
-    case None           => new EchsSOAPBindings with Soap11Clients with DispatchHttpClients
-    case Some(data) => new HttpsEchsSOAPBindings with Soap11Clients with SslAuthenticatingHttpClients {
-      def certData = data
+  private[client] lazy val soapBindings ={
+
+    val sb = certificateData match {
+      case None           => new CustomUriEchsSOAPBindings with Soap11Clients with DispatchHttpClients {
+        def uriOverride = uri
+      }
+      case Some(data) => new CustomUriEchsSOAPBindings with Soap11Clients with SslAuthenticatingHttpClients {
+        def uriOverride = uri
+        def certData = data
+      }
     }
+
+    logger.debug("SOAP bindings created; base address: {}", sb.baseAddress)
+    sb
   }
+
   private lazy val service = soapBindings.service
   lazy val authToken = new AuthToken()
 
