@@ -77,19 +77,19 @@ class EclearingClient(user: String, password: String,
     receive(roamingAuthorisation).roamingAuthorisationInfoArray
   }
 
-  private def authorized[T](func: String => T)(result: T => Result): T = {
+  private def authorized[T](func: String => T)(toResult: T => Result): T = {
     def loop(retry: Boolean): T = {
       val token = authToken()
       val res = func(token)
-      val code = result(res).resultCode
-      AuthResultType(code) match {
-        case AuthAccepted => res
-        case AuthDenied if retry =>
-          logger.debug("Auth token %s denied, retrying".format(token))
-          authToken.receiveNewToken()
-          loop(retry = false)
-        case AuthDenied => throw new EclearingException("Auth token %s is incorrect".format(token))
-      }
+      val result = toResult(res)
+      if (result.succeeded)
+        res
+      else if (retry) {
+        logger.debug(s"Failure, possibly auth token $token was denied, retrying")
+        authToken.receiveNewToken()
+        loop(retry = false)
+      } else
+        throw new EclearingException(s"Operation with auth token $token failed, reason: ${result.errorString}")
     }
     loop(retry = true)
   }
@@ -127,10 +127,10 @@ class EclearingClient(user: String, password: String,
       }
       AuthResultType(res.resultCode) match {
         case AuthAccepted => res.authToken match {
-          case Some(t) => logger.debug("Received new auth token: " + t); t
+          case Some(t) => logger.debug(s"Received new auth token: $t"); t
           case None => throw new EclearingException("No token received")
         }
-        case AuthDenied => throw new EclearingException("Login or password is incorrect")
+        case AuthDenied => throw new EclearingException(s"Could not authenticate: ${res.resultDescription.mkString}")
       }
     }
 
@@ -144,11 +144,15 @@ class EclearingClient(user: String, password: String,
 
 object EclearingClient {
 
+  implicit class RichResult(val result: Result) extends AnyVal {
+    def succeeded = result.resultCode == 0
+    def errorString = result.resultDescription.mkString
+  }
+
   object AuthResultType {
     def apply(code: Int): AuthResultType = code match {
       case 0 => AuthAccepted
-      case 1 => AuthDenied
-      case x => throw new EclearingException("Illegal AuthResultType: " + x)
+      case _ => AuthDenied
     }
   }
 
