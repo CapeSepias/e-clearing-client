@@ -1,15 +1,16 @@
-package com.thenewmotion.chargenetwork.eclearing.api
+package com.thenewmotion.chargenetwork
+package eclearing.api
 
 import com.thenewmotion.time.Imports._
 import scalax.StringOption
+import eclearing.Result
 
 /**
  * @author Yaroslav Klymko
  */
 trait EclearingApi {
   def cards(): Seq[Card]
-  def addCard(card: Card)
-  def removeCard(card: Card)
+  def sendCards(cards: Seq[Card]): Result
 }
 
 

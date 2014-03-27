@@ -11,7 +11,6 @@ trait EclearingService extends EclearingApi {
   def client: EclearingClient
 
   import Converters._
-  def addCard(card: Card) { client.setRoamingAuthorisationList(Seq(card)) }
-  def removeCard(card: Card) { client.setRoamingAuthorisationList(Seq(card.copy(tokenActivated = false))) }
+  def sendCards(cards: Seq[Card]): Result = client.setRoamingAuthorisationList(cards.map(implicitly[RoamingAuthorisationInfo](_)))
   def cards() = client.roamingAuthorisationList().map(implicitly[Card](_))
 }

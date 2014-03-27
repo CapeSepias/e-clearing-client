@@ -66,8 +66,8 @@ class EclearingClient(user: String, password: String,
     receive(service.getChargepointList(GetChargepointListRequest(), _)).chargepointInfoArray
   }
 
-  def setRoamingAuthorisationList(list: Seq[RoamingAuthorisationInfo]) {
-    logger.debug("Set roaming authorisation list: " + list.mkString(", "))
+  def setRoamingAuthorisationList(list: Seq[RoamingAuthorisationInfo]): Result = {
+    logger.debug(s"Set roaming authorisation list: ${list.length} cards")
     send(service.setRoamingAuthorisationList(SetRoamingAuthorisationListRequest(list: _*), _))
   }
 
@@ -102,7 +102,7 @@ class EclearingClient(user: String, password: String,
     }(_.result)
   }
 
-  private def send(func: String => Either[Soap11Fault[Any], Result]) {
+  private def send(func: String => Either[Soap11Fault[Any], Result]): Result = {
     authorized {
       token => rightOrError(func(token))
     }(identity)

@@ -10,8 +10,9 @@ import scalaxb.HttpClients
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.typesafe.scalalogging.slf4j.Logging
 
-trait SslAuthenticatingHttpClients extends HttpClients {
+trait SslAuthenticatingHttpClients extends HttpClients with Logging {
   def certData: SslCertificateData
 
   private val http = new SslAuthenticatingHttp(certData)
@@ -25,7 +26,7 @@ trait SslAuthenticatingHttpClients extends HttpClients {
     def request(in: String, address: java.net.URI, headers: Map[String, String]): String = {
       val req = url(address.toString) << in <:< headers
       val future = http(req OK as.String)
-      Await.result(future, 10.seconds)
+      Await.result(future, 30.seconds)
     }
   }
 }
